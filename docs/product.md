@@ -16,7 +16,7 @@ AI Capability Platform 是面向公众的 AI 能力管理、分发与使用平�
 
 | 模块 | 定位与首版职责 |
 |---|---|
-| Capability Hub · 我的能力 | 管理个人添加和从市场安装的 MCP/A2A 能力、OAuth 连接、直接测试、调用记录与外部客户端访问授权 |
+| Capability Hub · 我的能力 | 管理个人添加和从市场安装的 A2A/MCP 能力、OAuth 连接、直接测试、调用记录与外部客户端访问授权 |
 | Capability Market · 能力市场 | 发现、发布、审核、分享与安装能力，安装时调用 Hub 建立个人能力引用 |
 | AI Playground · AI 工作台 | 选择模型，通过自然语言测试和使用 Hub 中已安装、启用且获授权的能力 |
 
