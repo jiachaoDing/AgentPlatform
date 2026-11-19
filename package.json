@@ -1,0 +1,46 @@
+{
+  "name": "agent-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel --filter web --filter server dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present check-types && tsc -p tsconfig.tests.json",
+    "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "dev:web": "pnpm --filter web dev",
+    "dev:server": "pnpm --filter server dev",
+    "db:start": "pnpm --filter @agent-platform/db db:start",
+    "db:stop": "pnpm --filter @agent-platform/db db:stop",
+    "db:generate": "pnpm --filter @agent-platform/db db:generate",
+    "db:migrate": "pnpm --filter @agent-platform/db db:migrate",
+    "setup:local": "node scripts/setup-local.mjs",
+    "admin:create": "pnpm --filter server admin:create",
+    "format": "prettier --write apps packages scripts tests *.json *.ts *.yaml",
+    "format:check": "prettier --check apps packages scripts tests *.json *.ts *.yaml",
+    "mcp:inspect": "pnpm dlx @modelcontextprotocol/inspector@2.16.0"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@agent-platform/config": "workspace:*",
+    "@playwright/test": "1.65.1",
+    "@testcontainers/postgresql": "12.2.1",
+    "@types/node": "catalog:",
+    "msw": "3.0.7",
+    "prettier": "3.10.1",
+    "testcontainers": "12.2.1",
+    "typescript": "catalog:",
+    "vitest": "5.1.1"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24.11.0 <25"
+  }
+}
