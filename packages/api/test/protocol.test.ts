@@ -1,10 +1,5 @@
 import { expect, it, vi } from "vitest";
-import { createServer } from "node:http";
-import { Readable } from "node:stream";
-import { once } from "node:events";
-import type { AddressInfo } from "node:net";
-import { McpServer, createMcpHandler } from "@modelcontextprotocol/server";
-import { z } from "zod";
+import { startMcpFixture } from "./fixtures/mcp";
 import { TaskState, SendMessageRequest } from "@a2a-js/sdk";
 import * as oauth from "oauth4webapi";
 import {
@@ -13,45 +8,11 @@ import {
 } from "../src/hub/protocol-clients";
 
 it("官方 MCP SDK 经注入传输完成 HTTP 发现、参数与调用", async () => {
-  const handler = createMcpHandler(() => {
-    const server = new McpServer({ name: "text-fixture", version: "1.0.0" });
-    server.registerTool(
-      "uppercase",
-      { inputSchema: z.object({ text: z.string() }) },
-      async ({ text }) => ({
-        content: [{ type: "text", text: text.toUpperCase() }],
-      }),
-    );
-    return server;
-  });
-  const server = createServer(async (req, res) => {
-    try {
-      const body: Buffer[] = [];
-      for await (const chunk of req) body.push(Buffer.from(chunk));
-      const response = await handler.fetch(
-        new Request(`http://127.0.0.1${req.url}`, {
-          method: req.method,
-          headers: req.headers as Record<string, string>,
-          body: req.method === "POST" ? Buffer.concat(body) : undefined,
-        }),
-      );
-      res.writeHead(response.status, Object.fromEntries(response.headers));
-      if (response.body) Readable.from(response.body).pipe(res);
-      else res.end();
-    } catch {
-      res.writeHead(500);
-      res.end();
-    }
-  });
-  server.listen(0, "127.0.0.1");
-  await once(server, "listening");
-  const fetchSpy = vi.fn<typeof fetch>((...args) => fetch(...args));
+  const server = await startMcpFixture();
+  const fetchSpy = vi.fn(server.fetch);
   let client: Awaited<ReturnType<typeof connectMcp>> | undefined;
   try {
-    client = await connectMcp(
-      new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}/mcp`),
-      fetchSpy,
-    );
+    client = await connectMcp(new URL("/mcp", server.origin), fetchSpy);
     const tools = await client.listTools();
     expect(tools.tools[0]?.name).toBe("uppercase");
     const result = await client.callTool({
@@ -67,8 +28,7 @@ it("官方 MCP SDK 经注入传输完成 HTTP 发现、参数与调用", async (
     expect(fetchSpy.mock.calls.length).toBeGreaterThanOrEqual(3);
   } finally {
     await client?.close();
-    server.closeAllConnections();
-    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await server.close();
   }
 });
 

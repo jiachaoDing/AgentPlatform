@@ -8,7 +8,7 @@ const modelConfigSchema = z.object({
   apiKey: z.string().min(1),
 });
 
-// Production callers must provide the Hub-controlled outbound transport.
+// Production callers must provide the platform-controlled outbound transport.
 export function createCompatibleModel(
   config: z.infer<typeof modelConfigSchema>,
   fetchImpl: typeof fetch,

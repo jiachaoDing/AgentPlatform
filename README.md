@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-项目进入 M1 技术验证，已建立可运行的前后端骨架、平台身份基础、个人能力查询和组件验证页。Vercel AI SDK 工具循环、协议客户端和任务队列的验证结果见 [开发计划](docs/plan.md)。下列能力为首版建设目标，完整接入与执行闭环正在建设。
+项目已通过 M1 可控环境技术验收。前后端骨架、平台身份、个人能力查询和组件验证页可运行；协议、远端 OAuth、队列和真实模型的验证结果见 [开发计划](docs/plan.md)。下列能力为首版建设目标，完整接入与执行闭环正在建设。
 
 ## 计划提供的能力
 
@@ -53,6 +53,16 @@ pnpm build
 ```
 
 集成测试通过 Testcontainers 创建临时 PostgreSQL 容器，不使用本地开发数据库。数据库结构修改后运行 `pnpm db:generate`，检查迁移再运行 `pnpm db:migrate`。`pnpm db:stop` 停止本地数据库并保留数据。
+
+### 真实模型冒烟测试
+
+在 `apps/server/.env.model.local`（Git 忽略）或服务端进程环境中设置 `AEC_MODEL_BASE_URL`、`AEC_MODEL_API_KEY`、`AEC_MODEL_ID`。模型须支持 OpenAI 兼容的 Chat Completions 工具调用。运行：
+
+```powershell
+pnpm --filter server test:model:live
+```
+
+命令会消耗模型额度，只发送合成文本，通过两个本机独立 HTTP 测试服务验证 MCP → A2A 的实际调用及最终回答。模型密钥只发送给所配置的模型接口。
 
 `pnpm mcp:inspect` 按固定版本启动官方 MCP Inspector，用于独立协议联调。生成骨架和复用组件的许可证声明见 [第三方源码声明](THIRD_PARTY_NOTICES.md)。
 
